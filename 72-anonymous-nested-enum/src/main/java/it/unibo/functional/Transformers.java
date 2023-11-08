@@ -54,7 +54,22 @@ public final class Transformers {
      * @param <O> output elements type
      */
     public static <I, O> List<O> transform(final Iterable<I> base, final Function<I, O> transformer) {
-        return null;
+        //final List<O> toReturn = new ArrayList<O>();
+//
+        //for(I elem : Objects.requireNonNull(base,"the iterable cannot be null")){
+        //    toReturn.add(transformer.call(elem));
+        //}
+        //return toReturn;
+
+        //we could have notice that flattentransform is a more general approch
+        //to this problem and used it.
+
+        return flattenTransform(base, new Function<I, Collection<? extends O>>() {
+            @Override
+            public List<? extends O> call(final I input) {
+                return List.of(transformer.call(input));
+            }
+        });
     }
 
     /**
@@ -69,8 +84,21 @@ public final class Transformers {
      * @return A flattened list with the elements of each collection in the input
      * @param <I> type of the collection elements
      */
-    public static <I> List<? extends I> flatten(final Iterable<? extends Collection<? extends I>> base) {
-        return null;
+    public static <I> List<? extends I> flatten(
+        final Iterable<? extends Collection<? extends I>> base){
+
+        final List<I> toReturn = new ArrayList<I>();
+        
+        for(final Collection<? extends I> elem : base){
+            toReturn.addAll(elem);
+        }
+        return toReturn;
+        //original used multiple for to access the single instance
+        //but more optimal to use addAll
+        //the optimal solution require the use of flattentransform,
+        //wich thanks to add all, surpasses the limit of nested lists
+        //up to 1 level i suppose, so the code would be
+        //  return flattenTrasnform(base,Function.identity())
     }
 
     /**
@@ -87,7 +115,28 @@ public final class Transformers {
      * @param <I> elements type
      */
     public static <I> List<I> select(final Iterable<I> base, final Function<I, Boolean> test) {
-        return null;
+
+
+        //for(I elem : base){
+        //    if(test.call(elem) == true){
+        //        passedElem.add(elem);
+        //    }
+        //}
+        //return passedElem;
+
+        //the solution is similar becouse i looked, 
+        // what i didn't get is that, the function that we pass, is suppose to return
+        // a list with a single element and to check that single element with the given test
+        // i assumed that it would be general size but i didn't read well the assignment
+
+        return flattenTransform(base, new Function<I,Collection<? extends I>>() {
+            @Override
+            public List<? extends I> call(I input) {
+                return  test.call(input) ? List.of(input) : List.of();
+            }
+            
+            
+        });
     }
 
     /**
@@ -103,6 +152,11 @@ public final class Transformers {
      * @param <I> elements type
      */
     public static <I> List<I> reject(final Iterable<I> base, final Function<I, Boolean> test) {
-        return null;
+        return select(base, new Function<I,Boolean>() {
+            @Override
+            public Boolean call(I input) {
+               return !test.call(input);
+            }
+        })
     }
 }
