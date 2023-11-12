@@ -157,6 +157,10 @@ public final class Transformers {
             public Boolean call(I input) {
                return !test.call(input);
             }
-        })
+        });
     }
+    
+    //looks similar but i assure i guessed it
+    //due to the previus mistake and the obviosity of the similarity
+    //of this function and the previus one this outcome is quite inevitable.
 }
